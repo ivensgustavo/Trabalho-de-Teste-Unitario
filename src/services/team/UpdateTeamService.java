@@ -2,13 +2,23 @@ package services.team;
 
 import java.util.List;
 
+import connection.ConnectionFactory;
 import dao.TeamDAO;
 import model.Team;
 
 public class UpdateTeamService {
 
+	private TeamDAO teamDAO;
+	
+	public UpdateTeamService() {
+		this.teamDAO = new TeamDAO(new ConnectionFactory());
+	}
+	
+	public UpdateTeamService(TeamDAO teamDAO) {
+		this.teamDAO = teamDAO;
+	}
+	
 	public boolean execute(int id, String name) {
-		TeamDAO teamDAO = TeamDAO.getInstance();
 		
 		Team existentTeam = teamDAO.getTeam(id);
 		
@@ -36,7 +46,7 @@ public class UpdateTeamService {
 	}
 	
 	private boolean findExistentTeam(Team team) {
-		TeamDAO teamDAO = TeamDAO.getInstance();
+	
 		List<Team> existentTeams = teamDAO.getAllTeams();
 		
 		for(Team t: existentTeams) {

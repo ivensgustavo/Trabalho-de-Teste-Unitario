@@ -2,6 +2,7 @@ package control;
 
 import java.util.List;
 
+import connection.ConnectionFactory;
 import dao.MarketDAO;
 import model.Player;
 import services.player.CreatePlayerService;
@@ -11,7 +12,7 @@ import services.player.UpdatePlayerService;
 public class MarketController {
 
 	private String errorMessage = "";
-	private MarketDAO marketDAO = MarketDAO.getInstance();
+	private MarketDAO marketDAO = new MarketDAO(new ConnectionFactory());
 	
 	public String getErrorMessage() {
 		return this.errorMessage;

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import connection.ConnectionFactory;
 import dao.MarketDAO;
 import dao.TeamDAO;
 import model.Player;
@@ -15,8 +16,8 @@ import services.team.BuyPlayerService;
 
 class BuyPlayerServiceTest {
 	
-	private TeamDAO teamDAO = TeamDAO.getInstance();
-	private MarketDAO marketDAO = MarketDAO.getInstance();
+	private TeamDAO teamDAO = new TeamDAO(new ConnectionFactory());
+	private MarketDAO marketDAO = new MarketDAO(new ConnectionFactory());
 	BuyPlayerService service = new BuyPlayerService();
 
 	@Test
@@ -57,7 +58,7 @@ class BuyPlayerServiceTest {
 	
 	@Test
 	void ShouldBuyAPlayer() throws Exception {
-		Team team = new Team("Sensacao FC");
+		Team team = new Team("Barbaridade FC");
 		Player newPlayer = new Player("Zyech", "Flamengo", "Atacante", 15, 15);
 		
 		this.teamDAO.addTeam(team);

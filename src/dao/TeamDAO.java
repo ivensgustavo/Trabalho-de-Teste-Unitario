@@ -13,43 +13,41 @@ import model.Team;
 
 public class TeamDAO {
 
-	private static TeamDAO uniqueInstance = null;
-	private Connection conn = ConnectionFactory.getConnection();
-	private PreparedStatement stmt = null;
-	private ResultSet rs = null;
+	private ConnectionFactory connectionFactory;
 	
-	private TeamDAO() {
-		
-	}
-	
-	public static TeamDAO getInstance() {
-		if(uniqueInstance == null) {
-			uniqueInstance = new TeamDAO();
-		}
-		
-		return uniqueInstance;
+	public TeamDAO(ConnectionFactory connectionFactory) {
+		this.connectionFactory = connectionFactory;
 	}
 	
 	public boolean addTeam(Team team) {
 		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+		
 		String sql = "INSERT INTO teams(id, name) VALUES(?, ?)";
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
-			this.stmt.setInt(1, team.getId());
-			this.stmt.setString(2, team.getName());
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, team.getId());
+			stmt.setString(2, team.getName());
 			
-			this.stmt.executeUpdate();
+			stmt.executeUpdate();
 			return true;
 			
 		} catch (SQLException e) {
 			System.out.println("erro sql: "+e);
 			return false;
+		} finally {
+			connectionFactory.closeConnection(conn, stmt);
 		}
 
 	}
 	
 	private List<Player> getEscalation(int teamId){
+		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
 		
 		String sql = "SELECT * FROM players, team_player WHERE players.id = team_player.player_id "
 				+ "AND team_player.team_id = ?";
@@ -57,9 +55,9 @@ public class TeamDAO {
 		List<Player> players = new ArrayList<Player>();
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
-			this.stmt.setInt(1, teamId);
-			this.rs = this.stmt.executeQuery();
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, teamId);
+			rs = stmt.executeQuery();
 			
 			while(rs.next()) {
 				Player player = new Player();
@@ -71,24 +69,33 @@ public class TeamDAO {
 				player.setPoints(rs.getDouble("points"));
 				
 				players.add(player);
+				System.out.println("pegou um player");
+				System.out.println(player);
 			}
 			
 			return players;
 			
 		} catch (SQLException e) {
 			throw new RuntimeException("An SQL error occurred while fetching the escalation.");
-		} 
+		} finally {
+			connectionFactory.closeConnection(conn, stmt, rs);
+		}
 		
 	}
 	
 	public List<Team> getAllTeams(){
 		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		
+		System.out.println("rs no get all");
 		String sql = "SELECT * FROM teams";
 		List<Team> teams = new ArrayList<Team>();
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
-			this.rs = this.stmt.executeQuery();
+			stmt = conn.prepareStatement(sql);
+			rs = stmt.executeQuery();
 			
 			while(rs.next()) {
 				Team team = new Team();
@@ -108,17 +115,25 @@ public class TeamDAO {
 			
 		} catch (SQLException e) {
 			throw new RuntimeException("An SQL error occurred while fetching the teams.");
+		} finally {
+			connectionFactory.closeConnection(conn, stmt, rs);
 		}
 		
 	}
 	
 	public Team getTeam(int id){
+	
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		System.out.println("rs no get");
+		
 		String sql = "SELECT * FROM teams WHERE id = ?";
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
-			this.stmt.setInt(1, id);
-			rs = this.stmt.executeQuery();
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, id);
+			rs = stmt.executeQuery();
 			
 			if(rs.next()) {
 				Team team = new Team();
@@ -127,44 +142,58 @@ public class TeamDAO {
 				team.setTotalPoints(rs.getDouble("total_points"));
 				team.setEscalation(this.getEscalation(id));
 				
+				System.out.println("tamanho "+team.getEscalation());
 				return team;
 			}else return null;
 			
 		} catch (SQLException e) {
 			throw new RuntimeException("An SQL error occurred while fetching the team.");
+		} finally {
+			connectionFactory.closeConnection(conn, stmt, rs);
 		}
 		
 	}
 	
 	public boolean removeTeam(int id) {
+		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+		
 		String sql = "DELETE FROM teams WHERE id = ?";
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
-			this.stmt.setInt(1, id);
-			this.stmt.executeUpdate();
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, id);
+			stmt.executeUpdate();
 			return true;
 		} catch (SQLException e) {
 			return false;
+		} finally {
+			connectionFactory.closeConnection(conn, stmt);
 		}
 		
 	}
 	
 	public boolean updateTeam(Team team) {
 		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+		
 		String sql = "UPDATE teams SET name = ?, total_points = ? WHERE id = ?";
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
-			this.stmt.setString(1, team.getName());
-			this.stmt.setDouble(2, team.getTotalPoints());
-			this.stmt.setInt(3,  team.getId());
-			this.stmt.executeUpdate();
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, team.getName());
+			stmt.setDouble(2, team.getTotalPoints());
+			stmt.setInt(3,  team.getId());
+			stmt.executeUpdate();
 			
 			return this.updateEscalation(team);
 			
 		} catch (SQLException e) {
 			return false;
+		} finally {
+			connectionFactory.closeConnection(conn, stmt);
 		}
 		
 	}
@@ -193,15 +222,19 @@ public class TeamDAO {
 	}
 	
 	private boolean addPlayerToEscalation(List<Player> newPlayers, int teamId) {
+		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+		
 		String sql = "INSERT INTO team_player(team_id, player_id) VALUES(?, ?)";
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			
 			for(Player p: newPlayers) {
-				this.stmt.setInt(1, teamId);
-				this.stmt.setInt(2, p.getId());
-				this.stmt.executeUpdate();
+				stmt.setInt(1, teamId);
+				stmt.setInt(2, p.getId());
+				stmt.executeUpdate();
 			}
 			
 			return true;
@@ -209,26 +242,34 @@ public class TeamDAO {
 		} catch (SQLException e) {
 			System.out.println(e);
 			throw new RuntimeException("There was an error adding new players to the team.");
+		} finally {
+			connectionFactory.closeConnection(conn, stmt);
 		}
 		
 	}
 	
 	private boolean removePlayerFromEscalation(List<Player> excludedPlayers, int teamId) {
+		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+	
 		String sql = "DELETE FROM team_player WHERE team_id = ? AND player_id = ?";
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			
 			for(Player p: excludedPlayers) {
-				this.stmt.setInt(1, teamId);
-				this.stmt.setInt(2, p.getId());
-				this.stmt.executeUpdate();
+				stmt.setInt(1, teamId);
+				stmt.setInt(2, p.getId());
+				stmt.executeUpdate();
 			}
 			
 			return true;
 			
 		} catch (SQLException e) {
 			throw new RuntimeException("There was an error excluding os players to the team.");
+		} finally {
+			connectionFactory.closeConnection(conn, stmt);
 		}
 		
 	}

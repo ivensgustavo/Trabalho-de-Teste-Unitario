@@ -10,12 +10,12 @@ import javax.swing.JOptionPane;
 
 public class ConnectionFactory {
 	
-	private static String DRIVER = "org.postgresql.Driver";
-	private static String URL = "jdbc:postgresql://localhost:5432/cartola_db";
-	private static String USER = "postgres";
-	private static String PASSWORD = "08102806";
+	private String DRIVER = "org.postgresql.Driver";
+	private String URL = "jdbc:postgresql://localhost:5432/cartola_db";
+	private String USER = "postgres";
+	private String PASSWORD = "08102806";
 	
-	public static Connection getConnection() {
+	public Connection getConnection() {
 		try {
 			
 			Class.forName(DRIVER);
@@ -26,7 +26,7 @@ public class ConnectionFactory {
 		}
 	}
 	
-	public static void closeConnection(Connection conn) {
+	public void closeConnection(Connection conn) {
 		if(conn != null) {
 			try {
 				conn.close();
@@ -36,7 +36,7 @@ public class ConnectionFactory {
 		}
 	}
 	
-	public static void closeConnection(Connection conn, PreparedStatement stmt) {
+	public void closeConnection(Connection conn, PreparedStatement stmt) {
 		if(stmt != null) {
 			try {
 				stmt.close();
@@ -47,7 +47,7 @@ public class ConnectionFactory {
 		}
 	}
 	
-	public static void closeConnection(Connection conn, PreparedStatement stmt, ResultSet rs) {
+	public void closeConnection(Connection conn, PreparedStatement stmt, ResultSet rs) {
 		if(rs != null) {
 			try {
 				rs.close();

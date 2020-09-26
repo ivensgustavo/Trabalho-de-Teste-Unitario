@@ -1,11 +1,12 @@
 package model;
 
+import connection.ConnectionFactory;
 import dao.utils.IdInitializer;
 
 public class Player {
 	
 	private int id;
-	private static int nextid = new IdInitializer().getInitialPlayerId();
+	private static int nextid = new IdInitializer(new ConnectionFactory()).getInitialPlayerId();
 	private String name;
 	private String club;
 	private String position;

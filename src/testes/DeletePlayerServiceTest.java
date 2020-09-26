@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import connection.ConnectionFactory;
 import dao.MarketDAO;
 import model.Player;
 import services.player.DeletePlayerService;
@@ -51,7 +52,7 @@ class DeletePlayerServiceTest {
 
 	@Test
 	void checkDeletePlayer() {
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		MarketDAO marketDAO = new MarketDAO(new ConnectionFactory());
 		Player player = new Player("Micael", "Flamengo", "Atacante", 10, 12);
 		int id = player.getId();
 		

@@ -2,17 +2,27 @@ package services.player;
 
 import java.util.List;
 
+import connection.ConnectionFactory;
 import dao.MarketDAO;
 import model.Player;
 import utils.ClubList;
 import utils.PositionsList;
 
 public class CreatePlayerService {
+	
+	private MarketDAO marketDAO;
+
+	public CreatePlayerService(MarketDAO marketDAO) {
+		this.marketDAO = marketDAO;
+	}
+	
+	public CreatePlayerService() {
+		this.marketDAO = new MarketDAO(new ConnectionFactory());
+	}
 
 	public Player execute(String name, String club, String position, double value, double points) {
 		ClubList clubs = ClubList.getInstance();
 		PositionsList positions = PositionsList.getInstance();
-		MarketDAO marketDAO = MarketDAO.getInstance();
 		
 		try {
 			if(!name.matches("^[a-zA-Z0-9][a-zA-Z0-9| ]*[a-zA-Z]$")) {
@@ -41,15 +51,14 @@ public class CreatePlayerService {
 			throw new IllegalArgumentException("This player already added.");
 		}
 		
-		marketDAO.addPlayer(player);
+		this.marketDAO.addPlayer(player);
 		
 		return player;
 	}
 	
 	private boolean findExistentPlayer(Player newPlayer) {
-		MarketDAO marketDAO = MarketDAO.getInstance();
 		
-		List<Player> existentPlayers = marketDAO.getAllPlayers();
+		List<Player> existentPlayers = this.marketDAO.getAllPlayers();
 		
 		for(Player p: existentPlayers) {
 			if(p.equals(newPlayer)) return true;

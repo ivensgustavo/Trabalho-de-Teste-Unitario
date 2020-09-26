@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import connection.ConnectionFactory;
 import dao.MarketDAO;
 import model.Player;
 import services.player.CreatePlayerService;
@@ -13,7 +14,7 @@ import utils.PositionsInitiator;
 
 class CreatePlayerServiceTest {
 	
-	private MarketDAO marketDAO = MarketDAO.getInstance();
+	private MarketDAO marketDAO = new MarketDAO(new ConnectionFactory());
 	private CreatePlayerService service = new CreatePlayerService();
 	private static Player player = new Player("Pedro Fonseca", "Bahia", "Meia", 5, 7);
 	private static ClubInitiator clubInitiator = null;

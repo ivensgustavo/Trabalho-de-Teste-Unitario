@@ -2,19 +2,29 @@ package services.player;
 
 import java.util.List;
 
+import connection.ConnectionFactory;
 import dao.MarketDAO;
 import model.Player;
 import utils.ClubList;
 import utils.PositionsList;
 
 public class UpdatePlayerService {
+	
+	private MarketDAO marketDAO;
+
+	public UpdatePlayerService() {
+		this.marketDAO = new MarketDAO(new ConnectionFactory());
+	}
+	
+	public UpdatePlayerService(MarketDAO marketDAO) {
+		this.marketDAO = marketDAO;
+	}
 
 	public Player execute(int id, String name, String club, String position, double value, double points) {
 		ClubList clubs = ClubList.getInstance();
 		PositionsList positions = PositionsList.getInstance();
-		MarketDAO marketDAO = MarketDAO.getInstance();
 		
-		Player existentPlayer = marketDAO.getPlayer(id);
+		Player existentPlayer = this.marketDAO.getPlayer(id);
 		
 		if(existentPlayer == null) {
 			throw new IllegalArgumentException("The reporting player does not exist.");
@@ -48,15 +58,14 @@ public class UpdatePlayerService {
 			throw new IllegalArgumentException("This player already exists.");
 		}
 		
-		marketDAO.updatePlayer(player);
+		this.marketDAO.updatePlayer(player);
 		
 		return player;
 	}
 	
 	private boolean findExistentPlayer(Player updatedPlayer) {
-		MarketDAO marketDAO = MarketDAO.getInstance();
 		
-		List<Player> existentPlayers = marketDAO.getAllPlayers();
+		List<Player> existentPlayers = this.marketDAO.getAllPlayers();
 		
 		for(Player p: existentPlayers) {
 			if(p.equals(updatedPlayer)) return true;

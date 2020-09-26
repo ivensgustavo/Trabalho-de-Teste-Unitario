@@ -10,14 +10,22 @@ import connection.ConnectionFactory;
 
 public class IdInitializer {
 
-	private Connection conn = ConnectionFactory.getConnection();
-	private PreparedStatement stmt = null;
-	private ResultSet rs = null;
+	private ConnectionFactory connectionFactory = null;
+	private Connection conn = null;
+	
+	public IdInitializer(ConnectionFactory connectionFactory) {
+		this.connectionFactory = connectionFactory;
+		this.conn = this.connectionFactory.getConnection();
+	}
 	
 	public int getInitialPlayerId(){
 		String sql = "SELECT id FROM players  ORDER BY id DESC LIMIT 1";
+		
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
+			stmt = this.conn.prepareStatement(sql);
 			rs = stmt.executeQuery();
 			
 			if(rs.next()) return rs.getInt("id") + 1;
@@ -29,8 +37,12 @@ public class IdInitializer {
 	
 	public int getInitialTeamId(){
 		String sql = "SELECT id FROM teams  ORDER BY id DESC LIMIT 1";
+		
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
+			stmt = this.conn.prepareStatement(sql);
 			rs = stmt.executeQuery();
 			
 			if(rs.next()) return rs.getInt("id") + 1;

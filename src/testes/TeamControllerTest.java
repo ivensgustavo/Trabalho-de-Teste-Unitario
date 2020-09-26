@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import connection.ConnectionFactory;
 import control.TeamController;
 import dao.MarketDAO;
 import dao.TeamDAO;
@@ -14,7 +15,8 @@ import model.Team;
 class TeamControllerTest {
 	
 	private TeamController teamController = new TeamController();
-	private TeamDAO teamDAO = TeamDAO.getInstance();
+	private TeamDAO teamDAO = new TeamDAO(new ConnectionFactory());
+	private MarketDAO marketDAO = new MarketDAO(new ConnectionFactory());
 
 	@Test
 	void coulNotAddATeamWithEmptyName() {
@@ -256,7 +258,6 @@ class TeamControllerTest {
 	void CouldNotBuyMoreThan11Players() {
 		
 		Team team = new Team("Baile FC");
-		MarketDAO marketDAO = MarketDAO.getInstance();
 		
 		team.getEscalation().add(new Player("Messi", "Flamengo", "Atacante", 20, 10));
 		team.getEscalation().add(new Player("Cristiano Ronaldo", "Flamengo", "Atacante", 20, 10));
@@ -289,7 +290,7 @@ class TeamControllerTest {
 	
 	@Test 
 	void CouldNotBuyTheSamePlayer(){
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		
 		Team team = new Team("Constrangimento FC");
 		team.getEscalation().add(new Player("Messi", "Flamengo", "Atacante", 20, 10));
 		this.teamDAO.addTeam(team);
@@ -312,7 +313,7 @@ class TeamControllerTest {
 	
 	@Test 
 	void shouldSellAPlayer() {
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		MarketDAO marketDAO = new MarketDAO(new ConnectionFactory());
 		Team team = new Team("Arrepio FC");
 		String teamId = String.valueOf(team.getId());
 		Player newPlayer = new Player("Willian", "Bahia", "Atacante", 11, 10);

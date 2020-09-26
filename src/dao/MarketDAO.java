@@ -12,66 +12,69 @@ import model.Player;
 
 public class MarketDAO {
 
-	private static MarketDAO uniqueInstance = null;
-	private Connection conn = ConnectionFactory.getConnection();
-	private PreparedStatement stmt = null;
-	private ResultSet rs = null;
+	private ConnectionFactory connectionFactory = null;
 	
-	private MarketDAO() {
-		
-	}
-	
-	public static MarketDAO getInstance() {
-		if(uniqueInstance == null) {
-			uniqueInstance = new MarketDAO();
-		}
-		
-		return uniqueInstance;
+	public MarketDAO(ConnectionFactory connectionFactory) {
+		this.connectionFactory = connectionFactory;
 	}
 	
 	public boolean addPlayer(Player player) {
+		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
 		
 		String sql = "INSERT INTO players(id, name, club, position, value, points) "
 				+ "VALUES(?, ?, ?, ?, ?, ?)";
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
-			this.stmt.setInt(1, player.getId());
-			this.stmt.setString(2, player.getName());
-			this.stmt.setString(3, player.getClub());
-			this.stmt.setString(4, player.getPosition());
-			this.stmt.setDouble(5,  player.getValue());
-			this.stmt.setDouble(6, player.getPoints());
-			this.stmt.executeUpdate();
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, player.getId());
+			stmt.setString(2, player.getName());
+			stmt.setString(3, player.getClub());
+			stmt.setString(4, player.getPosition());
+			stmt.setDouble(5,  player.getValue());
+			stmt.setDouble(6, player.getPoints());
+			stmt.executeUpdate();
 			return true;
 		} catch (SQLException e) {
 			return false;
+		} finally {
+			connectionFactory.closeConnection(conn, stmt);
 		}
 	}
 	
 	public boolean removePlayer(int id) {
 		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+		
 		String sql = "DELETE FROM players WHERE id = ?";
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, id);
 			stmt.executeUpdate();
 			return true;
 		} catch (SQLException e) {
 			return false;
+		} finally {
+			connectionFactory.closeConnection(conn, stmt);
 		}
 	
 	}
 	
 	public List<Player> getAllPlayers() {
 		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		
 		String sql = "SELECT * FROM players";
 		List<Player> players = new ArrayList<Player>();
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
-			this.rs = this.stmt.executeQuery();
+			stmt = conn.prepareStatement(sql);
+			rs = stmt.executeQuery();
 			
 			while(rs.next()) {
 				Player player = new Player();
@@ -88,17 +91,23 @@ public class MarketDAO {
 			return players;
 		} catch (SQLException e) {
 			throw new RuntimeException("An SQL error occurred while fetching players.");
+		} finally {
+			connectionFactory.closeConnection(conn, stmt, rs);
 		}
 	}
 	
 	public Player getPlayer(int id) {
 		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		
 		String sql = "SELECT * FROM players WHERE id = ?";
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
-			this.stmt.setInt(1, id);
-			this.rs = this.stmt.executeQuery();
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, id);
+			rs = stmt.executeQuery();
 			
 			if(rs.next()) {
 				Player player = new Player();
@@ -113,28 +122,35 @@ public class MarketDAO {
 			}else return null;
 		} catch (SQLException e) {
 			throw new RuntimeException("An SQL error occurred while fetching the player.");
+		} finally {
+			connectionFactory.closeConnection(conn, stmt, rs);
 		}
 	}
 	
 	public boolean updatePlayer(Player player) {
 		
+		Connection conn = connectionFactory.getConnection();
+		PreparedStatement stmt = null;
+		
 		String sql = "UPDATE players SET name = ?, club = ?, position = ?, value = ?, points = ? "
 				+ "WHERE id = ?";
 		
 		try {
-			this.stmt = this.conn.prepareStatement(sql);
-			this.stmt = this.conn.prepareStatement(sql);
-			this.stmt.setString(1, player.getName());
-			this.stmt.setString(2, player.getClub());
-			this.stmt.setString(3, player.getPosition());
-			this.stmt.setDouble(4,  player.getValue());
-			this.stmt.setDouble(5, player.getPoints());
-			this.stmt.setInt(6, player.getId());
+			stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, player.getName());
+			stmt.setString(2, player.getClub());
+			stmt.setString(3, player.getPosition());
+			stmt.setDouble(4,  player.getValue());
+			stmt.setDouble(5, player.getPoints());
+			stmt.setInt(6, player.getId());
 			
-			this.stmt.executeUpdate();
+			stmt.executeUpdate();
 			return true;
 		} catch (SQLException e) {
 			return false;
+		} finally {
+			connectionFactory.closeConnection(conn, stmt);
 		}
 	}
 	

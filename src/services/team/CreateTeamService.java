@@ -2,13 +2,25 @@ package services.team;
 
 import java.util.List;
 
+import connection.ConnectionFactory;
 import dao.TeamDAO;
 import model.Team;
 
 public class CreateTeamService {
+	
+	private TeamDAO teamDAO;
+
+	public CreateTeamService() {
+		this.teamDAO = new TeamDAO(new ConnectionFactory());
+	}
+	
+	public CreateTeamService(TeamDAO teamDAO) {
+		this.teamDAO = teamDAO;
+	}
+	
+	
 
 	public Team execute(String name) {
-		TeamDAO teamDAO = TeamDAO.getInstance();
 		
 		try {
 			if(!name.matches("^[a-zA-Z0-9][a-zA-Z0-9| ]*[a-zA-Z]$")) {
@@ -30,7 +42,7 @@ public class CreateTeamService {
 	}
 	
 	private boolean findExistentTeam(Team team) {
-		TeamDAO teamDAO = TeamDAO.getInstance();
+	
 		List<Team> existentTeams = teamDAO.getAllTeams();
 		
 		for(Team t: existentTeams) {

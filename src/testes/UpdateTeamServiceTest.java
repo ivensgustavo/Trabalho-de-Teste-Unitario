@@ -4,13 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import connection.ConnectionFactory;
 import dao.TeamDAO;
 import model.Team;
 import services.team.UpdateTeamService;
 
 class UpdateTeamServiceTest {
 
-	private TeamDAO teamDAO = TeamDAO.getInstance();
+	private TeamDAO teamDAO = new TeamDAO(new ConnectionFactory());
 	private static Team team = new Team("Contagia FC");
 	private UpdateTeamService service = new UpdateTeamService();
 	

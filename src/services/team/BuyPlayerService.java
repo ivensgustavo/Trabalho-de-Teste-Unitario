@@ -1,14 +1,23 @@
 package services.team;
 
+import connection.ConnectionFactory;
 import dao.TeamDAO;
 import model.Player;
 import model.Team;
 
 public class BuyPlayerService {
+	
+	private TeamDAO teamDAO;
+	
+	public BuyPlayerService() {
+		this.teamDAO = new TeamDAO(new ConnectionFactory());
+	}
+	
+	public BuyPlayerService(TeamDAO teamDAO) {
+		this.teamDAO = teamDAO;
+	}
 
 	public boolean execute(Team team, Player player) throws Exception {
-				
-		TeamDAO teamDAO = TeamDAO.getInstance();
 		
 		if(team.getEscalation().size() == 11) {
 			throw new Exception("There are already 11 players on this team.");
@@ -19,7 +28,7 @@ public class BuyPlayerService {
 		}
 		
 		if(team.buyPlayer(player)) {
-			return teamDAO.updateTeam(team);
+			return this.teamDAO.updateTeam(team);
 		}
 		
 		return false;

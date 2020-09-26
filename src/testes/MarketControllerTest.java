@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import connection.ConnectionFactory;
 import control.MarketController;
 import dao.MarketDAO;
 import model.Player;
@@ -13,20 +14,30 @@ import utils.PositionsInitiator;
 class MarketControllerTest {
 
 	MarketController marketController = new MarketController();
-	MarketDAO marketDAO = MarketDAO.getInstance();
+	MarketDAO marketDAO = new MarketDAO(new ConnectionFactory());
+	private static ClubInitiator clubInitiator = null;
+	private static PositionsInitiator positionsInitiator = null;
+	
+	
+	public MarketControllerTest() {
+		this.startTestEnvironment();
+	}
 
 	private void startTestEnvironment() {
-		ClubInitiator clubInitiator = new ClubInitiator();
-		clubInitiator.createClubs();
+		if(clubInitiator == null) {
+			clubInitiator = new ClubInitiator();
+			clubInitiator.createClubs();
+		}
 		
-		PositionsInitiator positionsInitiator = new PositionsInitiator();
-		positionsInitiator.createPositions();
+		if(positionsInitiator == null) {
+			positionsInitiator = new PositionsInitiator();
+			positionsInitiator.createPositions();
+		}
 	}
 	
 	
 	@Test
 	void couldNotAddAPlayerWithInvalidName() {
-		this.startTestEnvironment();
 		
 		String expectedErrorMessage = "Player name invalid.";
 		
@@ -39,7 +50,6 @@ class MarketControllerTest {
 	
 	@Test
 	void  couldNotAddAPlayerWithNullName(){
-		this.startTestEnvironment();
 		
 		String expectedErrorMessage = "Player name null.";
 		
@@ -52,11 +62,10 @@ class MarketControllerTest {
 	
 	@Test
 	void  couldNotAddAPlayerWithNullValue(){
-		this.startTestEnvironment();
 		
 		String expectedErrorMessage = "Player value is invalid.";
 		
-		boolean obtaindedResult  = this.marketController.addPlayer(null, "Coritiba", "Atacante", null, "10");
+		boolean obtaindedResult  = this.marketController.addPlayer("Thiago", "Coritiba", "Atacante", null, "10");
 		String obtainedErrorMessage = this.marketController.getErrorMessage();
 		
 		assertFalse(obtaindedResult);
@@ -65,11 +74,10 @@ class MarketControllerTest {
 	
 	@Test
 	void  couldNotAddAPlayerWithInvalidValue(){
-		this.startTestEnvironment();
 		
 		String expectedErrorMessage = "Player value is invalid.";
 		
-		boolean obtaindedResult  = this.marketController.addPlayer(null, "Coritiba", "Atacante", "10a", "10");
+		boolean obtaindedResult  = this.marketController.addPlayer("Hernanes", "Coritiba", "Atacante", "10a", "10");
 		String obtainedErrorMessage = this.marketController.getErrorMessage();
 		
 		assertFalse(obtaindedResult);
@@ -78,7 +86,6 @@ class MarketControllerTest {
 	
 	@Test
 	void  couldNotAddAPlayerWithNullPoints(){
-		this.startTestEnvironment();
 		
 		String expectedErrorMessage = "Player points is invalid.";
 		
@@ -91,7 +98,6 @@ class MarketControllerTest {
 	
 	@Test
 	void  couldNotAddAPlayerWithInvalidPoints(){
-		this.startTestEnvironment();
 		
 		String expectedErrorMessage = "Player points is invalid.";
 		
@@ -104,7 +110,6 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotAddWithInvalidClub() {
-		this.startTestEnvironment();
 		
 		String expectedErrorMessage = "Invalid club.";
 		
@@ -117,7 +122,6 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotAddWithInvalidPosition() {
-		this.startTestEnvironment();
 		
 		String expectedErrorMessage = "Invalid position.";
 		
@@ -130,14 +134,12 @@ class MarketControllerTest {
 	
 	@Test 
 	void couldNotAddAnExistingPlayer() {
-		this.startTestEnvironment();
-		MarketDAO marketDAO = MarketDAO.getInstance();
 		
-		marketDAO.addPlayer(new Player("Pedro Ramos", "Bahia", "Meia", 5, 7));
+		marketDAO.addPlayer(new Player("Gustavo Ramos", "Bahia", "Meia", 5, 7));
 		
 		String expectedErrorMessage = "This player already added.";
 		
-		boolean obtainedResult = this.marketController.addPlayer("Pedro Ramos", "Bahia", "Meia", "5", "7");
+		boolean obtainedResult = this.marketController.addPlayer("Gustavo Ramos", "Bahia", "Meia", "5", "7");
 		String obtainedErrorMessage = this.marketController.getErrorMessage();	
 		
 		assertEquals(expectedErrorMessage, obtainedErrorMessage);
@@ -146,8 +148,7 @@ class MarketControllerTest {
 	
 	@Test
 	void shouldAddAPlayer() {
-		this.startTestEnvironment();
-		
+
 		boolean  obtainedResult = this.marketController.addPlayer("Gustavo Ivens", "Flamengo", "Atacante", "15", "12"); 
 		
 		assertTrue(obtainedResult);
@@ -155,7 +156,6 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotUpdateANonExistentPlayer() {
-		this.startTestEnvironment();
 		
 		String expectedErrorMessage = "The reporting player does not exist.";
 		
@@ -168,12 +168,11 @@ class MarketControllerTest {
 
 	@Test
 	void couldNotUpdateAPlayerWithInvalidName() {
-		this.startTestEnvironment();
-		MarketDAO marketDAO = MarketDAO.getInstance();
-		Player player = new Player("Pedro Rocha", "Ceará", "Zagueiro", 5, 7);
+	
+		Player player = new Player("Emerson Oliveira", "Ceará", "Meia", 5, 7);
 		int id = player.getId();
 		String stringId = String.valueOf(id);
-		marketDAO.addPlayer(player);
+		this.marketDAO.addPlayer(player);
 		
 		String expectedErrorMessage = "Player name invalid.";
 		
@@ -186,8 +185,7 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotUpdateAPlayerWithNullName() {
-		this.startTestEnvironment();
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		
 		Player player = new Player("Pedro Rocha", "Ceará", "Zagueiro", 5, 7);
 		int id = player.getId();
 		String stringId = String.valueOf(id);
@@ -204,8 +202,7 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotUpdateAPlayerWithNullValue() {
-		this.startTestEnvironment();
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		
 		Player player = new Player("Pedro Rocha", "Ceará", "Zagueiro", 5, 7);
 		int id = player.getId();
 		String stringId = String.valueOf(id);
@@ -222,8 +219,7 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotUpdateAPlayerWithInvalidValue() {
-		this.startTestEnvironment();
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		
 		Player player = new Player("Pedro Rocha", "Ceará", "Zagueiro", 5, 7);
 		int id = player.getId();
 		String stringId = String.valueOf(id);
@@ -240,8 +236,7 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotUpdateAPlayerWithNullPoints() {
-		this.startTestEnvironment();
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		
 		Player player = new Player("Pedro Rocha", "Ceará", "Zagueiro", 5, 7);
 		int id = player.getId();
 		String stringId = String.valueOf(id);
@@ -258,8 +253,7 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotUpdateAPlayerWithInvalidPoints() {
-		this.startTestEnvironment();
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		
 		Player player = new Player("Pedro Rocha", "Ceará", "Zagueiro", 5, 7);
 		int id = player.getId();
 		String stringId = String.valueOf(id);
@@ -276,8 +270,7 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotUpdateAPlayerWithInvalidClub() {
-		this.startTestEnvironment();
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		
 		Player player = new Player("Pedro Rocha", "Ceará", "Zagueiro", 5, 7);
 		int id = player.getId();
 		String stringId = String.valueOf(id);
@@ -294,8 +287,7 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotUpdateAPlayerWithInvalidPosition() {
-		this.startTestEnvironment();
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		
 		Player player = new Player("Pedro Rocha", "Ceará", "Zagueiro", 5, 7);
 		int id = player.getId();
 		String stringId = String.valueOf(id);
@@ -312,8 +304,7 @@ class MarketControllerTest {
 	
 	@Test
 	void CouldNotUpdateAPlayerWithDataEqualToThatOfAnother() {
-		this.startTestEnvironment();
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		
 		Player player = new Player("Pedro Ramos", "Bahia", "Meia", 5, 7);
 		Player player2 = new Player("Pedro Rocha", "Ceará", "Atacante", 10, 9);
 		int id = player2.getId();
@@ -332,11 +323,10 @@ class MarketControllerTest {
 	
 	@Test
 	void shouldUpdateAPlayer() {
-		this.startTestEnvironment();
-		MarketDAO marketDAO = MarketDAO.getInstance();
+		
 		Player player = new Player("Pedro Ramos", "Bahia", "Meia", 5, 7);
 		String stringId = String.valueOf(player.getId());
-		marketDAO.addPlayer(player);
+		this.marketDAO.addPlayer(player);
 		
 		boolean  obtainedResult = this.marketController.updatePlayer(stringId, "Erivelton", "Flamengo", "Atacante", "15", "12"); 
 		
@@ -345,7 +335,7 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotDeleteANonExistentPlayer() {
-		this.startTestEnvironment();
+		
 		Player player = new Player("Antonio Ferreira", "Flamengo", "Meia", 5, 7);
 		String stringId = "50";
 		this.marketDAO.addPlayer(player);
@@ -361,7 +351,7 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotDeleteWithNegativeId() {
-		this.startTestEnvironment();
+		
 		Player player = new Player("Antonio Ferreira", "Flamengo", "Meia", 5, 7);
 		String stringId = "-2";
 		this.marketDAO.addPlayer(player);
@@ -377,7 +367,7 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotDeleteWithInvalidId() {
-		this.startTestEnvironment();
+		
 		Player player = new Player("Antonio Ferreira", "Flamengo", "Meia", 5, 7);
 		String stringId = "2.5";
 		this.marketDAO.addPlayer(player);
@@ -393,7 +383,7 @@ class MarketControllerTest {
 	
 	@Test
 	void shouldDeleteAPlayer() {
-		this.startTestEnvironment();
+		
 		Player player = new Player("Antonio Ferreira", "Flamengo", "Meia", 5, 7);
 		String stringId = String.valueOf(player.getId());
 		this.marketDAO.addPlayer(player);
@@ -405,7 +395,7 @@ class MarketControllerTest {
 	
 	@Test
 	void couldNotGetWithInvalidId() {
-		this.startTestEnvironment();
+		
 		Player player = new Player("Antonio Ferreira", "Flamengo", "Meia", 5, 7);
 		this.marketDAO.addPlayer(player);
 		

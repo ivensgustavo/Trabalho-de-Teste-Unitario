@@ -2,6 +2,7 @@ package control;
 
 import java.util.List;
 
+import connection.ConnectionFactory;
 import dao.TeamDAO;
 import model.Player;
 import model.Team;
@@ -14,7 +15,7 @@ import services.team.UpdateTeamService;
 public class TeamController {
 
 	private String errorMessage = "";
-	private TeamDAO teamDAO = TeamDAO.getInstance();
+	private TeamDAO teamDAO = new TeamDAO(new ConnectionFactory());
 	private MarketController marketController = new MarketController();
 	
 	public String getErrorMessage() {

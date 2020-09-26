@@ -3,12 +3,13 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
+import connection.ConnectionFactory;
 import dao.utils.IdInitializer;
 
 public class Team {
 
 	private int id;
-	private static int nextid = new IdInitializer().getInitialTeamId();
+	private static int nextid = new IdInitializer(new ConnectionFactory()).getInitialTeamId();
 	private String name;
 	private List<Player> escalation;
 	private double totalPoints;

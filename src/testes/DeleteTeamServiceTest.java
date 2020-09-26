@@ -4,13 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
+import connection.ConnectionFactory;
 import dao.TeamDAO;
 import model.Team;
 import services.team.DeleteTeamService;
 
 class DeleteTeamServiceTest {
 
-	private TeamDAO teamDAO = TeamDAO.getInstance();
+	private TeamDAO teamDAO = new TeamDAO(new ConnectionFactory());
 	private DeleteTeamService service = new DeleteTeamService();
 	
 	@Test

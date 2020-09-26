@@ -4,7 +4,6 @@ package view;
 
 import java.util.Scanner;
 
-import connection.ConnectionFactory;
 import control.MarketController;
 import control.TeamController;
 import model.Player;
@@ -284,8 +283,6 @@ public class Main {
 	public  static void main(String[] args) {
 		startValuesClubAndPosition();
 		printMenu();
-		
-		//System.out.println(ConnectionFactory.getConnection());
 	}
 	
 	

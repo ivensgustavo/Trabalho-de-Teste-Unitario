@@ -1,5 +1,6 @@
 package services.team;
 
+import connection.ConnectionFactory;
 import dao.TeamDAO;
 import model.Player;
 import model.Team;
@@ -7,7 +8,7 @@ import model.Team;
 public class SellPlayerService {
 
 	public boolean execute(Team team, int id) {
-		TeamDAO teamDAO = TeamDAO.getInstance();
+		TeamDAO teamDAO = new TeamDAO(new ConnectionFactory());
 		
 		Player existentPlayer = team.getPlayer(id);
 		

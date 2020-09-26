@@ -1,12 +1,23 @@
 package services.team;
 
+import connection.ConnectionFactory;
 import dao.TeamDAO;
 import model.Team;
 
 public class DeleteTeamService {
 
+	
+	private TeamDAO teamDAO;
+
+	public DeleteTeamService() {
+		this.teamDAO = new TeamDAO(new ConnectionFactory());
+	}
+	
+	public DeleteTeamService(TeamDAO teamDAO) {
+		this.teamDAO = teamDAO;
+	}
+	
 	public boolean execute(int id) {
-		TeamDAO teamDAO = TeamDAO.getInstance();
 		
 		Team existentTeam = teamDAO.getTeam(id);
 		
